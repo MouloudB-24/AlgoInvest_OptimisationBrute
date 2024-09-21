@@ -19,29 +19,42 @@ Objectif :
 --> Trouver toutes les combinaisons possibles d'actions dont la valeur == 500€
 
 Stratégie :
---> Parcourir toutes les combinaisons possibles de nombres dans la liste d'actions et
-vérifier si leur somme == 500€
+--> Trouver toutes les combinaisons de liste possible dans la liste d'actions.
+
+--> Parcouris toutes les combinaisons trouvée, garder celles dont la valeur == 500€
+
+--> Claculer pour chaque combinaison les bénéfices en mutipliant par le %
+
+--> Comparer les bénéfices en choisissant la meilleure combinaisons d'actions
 """
 
 
-def get_action_combinations(target, actions):
-    number_actions = len(actions)
-    combinations = []
+# Utilisation de l'algorithme Powerset
+def get_combinations(target, actions):
+    result = []
 
-    for n in range(number_actions):
-        current_sum = actions[n]
-        current_combination = [actions[n]]
+    # Initialise la liste des combinaisons avec un combinaison vide
+    combinations = [[]]
 
-        for k in range(n+1, number_actions):
-            if current_sum + actions[k] <= target:
-                current_combination.append(actions[k])
-                current_sum += actions[k]
+    for action in actions:
+        # Créer une nouvelle liste pour stocker les combinaisons générées
+        new_combinations = []
 
-            if current_sum == target:
-                combinations.append(current_combination[:])
-                break
+        for combination in combinations:
+            # On ajoute uniqument la combinaisons
+            new_combinations.append(combination)
 
-    return combinations
+            # On ajoute la combinaison + l'élément actuel
+            new_combinations.append(combination + [action])
+
+        # Mettre à jour les combinaisons pour inclure les nouvelles
+        combinations = new_combinations
+
+    for combination in combinations:
+        if sum(combination) == target:
+            result.append(combination)
+
+    return result
 
 
 def calculate_profit(combinations):
@@ -51,5 +64,5 @@ def calculate_profit(combinations):
 if __name__ == "__main__":
     actions = [20, 30, 50, 70, 60, 80, 22, 26, 48, 34, 42, 38, 14, 18, 8, 4, 10, 24, 114]
     target = 500
-    combinations = get_action_combinations(target, actions)
+    combinations = get_combinations(target, actions)
     print(f"Nomber of possible combinations is: {len(combinations)}\n{combinations}")
