@@ -53,7 +53,7 @@ def read_csv(file_name):
 
 
 # Function to calculate all possible combinations
-def get_combinations(data):
+def find_all_combinations(data):
     """
     Calculate all possible sub-lists combinations in the data list.
 
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
     data = read_csv("liste-actions.csv")
-    all_combinations = get_combinations(data)
+    all_combinations = find_all_combinations(data)
     #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
     #print(f"Combinaisons ciblée : {len(combinations)}")
@@ -146,5 +146,5 @@ if __name__ == "__main__":
     best_combination = get_best_combination(profit_per_combinations)
     # Début de l'éxecution de l'algorithme
     end_time = time.time()
-    print(f"Temps d'exécution : {end_time - start_time} secondes.")
+    print(f"Execution time: {end_time - start_time} seconds.")
     print(best_combination)
