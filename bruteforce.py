@@ -30,8 +30,14 @@ Stratégie :
 import csv
 
 
-# Récupérer les données : fichier csv
+# Function to retrieve data from a CSV file
 def read_csv(file_name):
+    """
+    Retrieve data from a CSV file.
+
+    :param file_name: Name file.
+    :return: Data in list form.
+    """
     data = []
     with open(file_name, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
@@ -39,57 +45,80 @@ def read_csv(file_name):
         for row in raw_data:
             percentage = row[2].strip("%")
             data.append([row[0], row[1], percentage])
-    # Supprimer la ligne des entêtes
+
+    # Delete headers
     data.pop(0)
     return data
 
 
-# Utilisation de l'algorithme Powerset
+# Function to calculate all possible combinations
 def get_combinations(data):
-    # Initialise la liste des combinaisons avec un combinaison vide
+    """
+    Calculate all possible sub-lists combinations in the data list.
+
+    :param data: The list whose possible sub-lists are to be calculated.
+    :return: The list containing all sub-lists.
+    """
+    # Initialize the list of combinations
     all_combinations = [[]]
 
     for element in data:
-        # Créer une nouvelle liste pour stocker les combinaisons générées
         new_combinations = []
 
         for combination in all_combinations:
-            # On ajoute uniqument la combinaisons
             new_combinations.append(combination)
-
-            # On ajoute la combinaison + l'élément actuel
             new_combinations.append(combination + [element])
 
-        # Mettre à jour les combinaisons pour inclure les nouvelles combinaisons générées
+        # Update the list of combinations
         all_combinations = new_combinations
-
     return all_combinations
 
 
+# Function to calculate all target combinations
 def get_target_combinations(all_combinations, target):
-    combinations = []
+    """
+    Obtain the target combinations from the list of all possible combinations.
+
+    :param all_combinations: The list of th all possible combinations.
+    :param target: The target of the combinations chosen, which represents a sum.
+    :return: The list containing the target combinations
+    """
+    target_combinations = []
     for combination in all_combinations:
         current_target = 0
         for action in combination:
             current_target += int(action[1])
         if current_target == target:
-            combinations.append(combination)
-    return combinations
+            target_combinations.append(combination)
+    return target_combinations
 
 
-# Cacluler le bénéfice pour chaque action
-def calculate_profit_per_action(combinations):
-    profit_per_combinations = []
-    for combination in combinations:
+# Function to calculate profit for each combination
+def calculate_profit_combination(target_combinations):
+    """
+    Calculates profit for each combination.
+
+    :param target_combinations: The list of the combinations.
+    :return: The list of combinations with profits.
+    """
+    profit_combinations = []
+    for combination in target_combinations:
         new_combination = []
         for action in combination:
             profit = int(action[1]) * int(action[2]) / 100
             new_combination.append([action[0], profit])
-        profit_per_combinations.append(new_combination)
-    return profit_per_combinations
+        profit_combinations.append(new_combination)
+    return profit_combinations
 
-# Obtenir la meilleire combinaisons d'actions
+
+# Function to obtain the best combinations of actions
 def get_best_combination(combinations):
+    """
+    Get the best combination of action.
+
+    :param combinations: The list of the combinations.
+    :return: The best combinations if action list and benefits
+    """
     best_profit = 0
     best_combination = []
     for combination in combinations:
@@ -102,7 +131,6 @@ def get_best_combination(combinations):
     return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
 
 
-
 if __name__ == "__main__":
     data = read_csv("liste-actions.csv")
     all_combinations = get_combinations(data)
@@ -110,7 +138,7 @@ if __name__ == "__main__":
     combinations = get_target_combinations(all_combinations, 500)
     #print(f"Combinaisons ciblée : {len(combinations)}")
     #print(f"Les données : {data}")
-    profit_per_combinations = calculate_profit_per_action(combinations)
+    profit_per_combinations = calculate_profit_combination(combinations)
     #print(f"Les combinaisons avec le bénéfice: {profit_per_combinations}")
     best_combination = get_best_combination(profit_per_combinations)
     print(best_combination)
