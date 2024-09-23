@@ -69,7 +69,10 @@ def get_combinations(data):
 def get_target_combinations(all_combinations, target):
     combinations = []
     for combination in all_combinations:
-        if sum(combination) == target:
+        current_target = 0
+        for action in combination:
+            current_target += int(action[1])
+        if current_target == target:
             combinations.append(combination)
     return combinations
 
@@ -79,10 +82,9 @@ def calculate_profit(combinations):
 
 
 if __name__ == "__main__":
-    actions = [20, 30, 50, 70, 60, 80, 22, 26, 48, 34, 42, 38, 14, 18, 8, 4, 10, 24, 114]
-    all_combinations = get_combinations(actions)
-    print(f"Nomber of possible combinations is: {len(all_combinations)}")
+    data = read_csv("liste-actions.csv")
+    all_combinations = get_combinations(data)
+    print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
     print(f"Combinaisons ciblée : {len(combinations)}")
-    data = read_csv("liste-actions.csv")
     print(f"Les données : {data}")
