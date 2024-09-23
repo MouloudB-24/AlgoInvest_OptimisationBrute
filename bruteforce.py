@@ -27,6 +27,21 @@ Stratégie :
 
 --> Comparer les bénéfices en choisissant la meilleure combinaisons d'actions
 """
+import csv
+
+
+# Récupérer les données : fichier csv
+def read_csv(file_name):
+    data = []
+    with open(file_name, "r", newline="", encoding="utf-8") as file:
+        raw_data = csv.reader(file)
+
+        for row in raw_data:
+            percentage = row[2].strip("%")
+            data.append([row[0], row[1], percentage])
+    # Supprimer la ligne des entêtes
+    data.pop(0)
+    return data
 
 
 # Utilisation de l'algorithme Powerset
@@ -51,7 +66,7 @@ def get_combinations(data):
     return all_combinations
 
 
-def get_target_combinations(target, all_combinations):
+def get_target_combinations(all_combinations, target):
     combinations = []
     for combination in all_combinations:
         if sum(combination) == target:
@@ -65,7 +80,9 @@ def calculate_profit(combinations):
 
 if __name__ == "__main__":
     actions = [20, 30, 50, 70, 60, 80, 22, 26, 48, 34, 42, 38, 14, 18, 8, 4, 10, 24, 114]
-    profit = [0.05, 0.1, 0.15, 0.2, 0.17, 0.25, 0.07, 0.11, 0.13, 0.27, 0.17, 0.09, 0.23, 0.01, 0.03, 0.08, 0.12, 0.14, 0.21]
-    target = 500
     all_combinations = get_combinations(actions)
     print(f"Nomber of possible combinations is: {len(all_combinations)}")
+    combinations = get_target_combinations(all_combinations, 500)
+    print(f"Combinaisons ciblée : {len(combinations)}")
+    data = read_csv("liste-actions.csv")
+    print(f"Les données : {data}")
