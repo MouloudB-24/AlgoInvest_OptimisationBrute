@@ -28,6 +28,7 @@ Stratégie :
 --> Comparer les bénéfices en choisissant la meilleure combinaisons d'actions
 """
 import csv
+import time
 
 
 # Function to retrieve data from a CSV file
@@ -132,6 +133,8 @@ def get_best_combination(combinations):
 
 
 if __name__ == "__main__":
+    # Début de l'éxecution de l'algorithme
+    start_time = time.time()
     data = read_csv("liste-actions.csv")
     all_combinations = get_combinations(data)
     #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
@@ -141,4 +144,7 @@ if __name__ == "__main__":
     profit_per_combinations = calculate_profit_combination(combinations)
     #print(f"Les combinaisons avec le bénéfice: {profit_per_combinations}")
     best_combination = get_best_combination(profit_per_combinations)
+    # Début de l'éxecution de l'algorithme
+    end_time = time.time()
+    print(f"Temps d'exécution : {end_time - start_time} secondes.")
     print(best_combination)
