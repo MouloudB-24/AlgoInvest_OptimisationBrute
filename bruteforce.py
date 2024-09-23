@@ -99,7 +99,7 @@ def get_best_combination(combinations):
         if profit > best_profit:
             best_profit = profit
             best_combination = combination
-    return best_combination, best_profit
+    return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
 
 
 
@@ -113,4 +113,4 @@ if __name__ == "__main__":
     profit_per_combinations = calculate_profit_per_action(combinations)
     #print(f"Les combinaisons avec le bénéfice: {profit_per_combinations}")
     best_combination = get_best_combination(profit_per_combinations)
-    print(f"La meilleure combinaisons d'action : {best_combination}")
+    print(best_combination)
