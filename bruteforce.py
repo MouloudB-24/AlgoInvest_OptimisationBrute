@@ -76,15 +76,25 @@ def get_target_combinations(all_combinations, target):
             combinations.append(combination)
     return combinations
 
+# Cacluler le bénéfice pour chaque action
+def calculate_profit_per_action(combinations):
+    combinations_with_profit = []
+    for combination in combinations:
+        new_combination = []
+        for action in combination:
+            profit = int(action[1]) * int(action[2]) / 100
+            new_combination.append([action[0], profit])
+        combinations_with_profit.append(new_combination)
+    return combinations_with_profit
 
-def calculate_profit(combinations):
-    pass
 
 
 if __name__ == "__main__":
     data = read_csv("liste-actions.csv")
     all_combinations = get_combinations(data)
-    print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
+    #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
-    print(f"Combinaisons ciblée : {len(combinations)}")
-    print(f"Les données : {data}")
+    #print(f"Combinaisons ciblée : {len(combinations)}")
+    #print(f"Les données : {data}")
+    profit_per_action = calculate_profit_per_action(combinations)
+    print(f"Les combinaisons avec le bénéfice: {profit_per_action}")
