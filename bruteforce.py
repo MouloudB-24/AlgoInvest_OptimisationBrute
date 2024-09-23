@@ -76,16 +76,30 @@ def get_target_combinations(all_combinations, target):
             combinations.append(combination)
     return combinations
 
+
 # Cacluler le bénéfice pour chaque action
 def calculate_profit_per_action(combinations):
-    combinations_with_profit = []
+    profit_per_combinations = []
     for combination in combinations:
         new_combination = []
         for action in combination:
             profit = int(action[1]) * int(action[2]) / 100
             new_combination.append([action[0], profit])
-        combinations_with_profit.append(new_combination)
-    return combinations_with_profit
+        profit_per_combinations.append(new_combination)
+    return profit_per_combinations
+
+# Obtenir la meilleire combinaisons d'actions
+def get_best_combination(combinations):
+    best_profit = 0
+    best_combination = []
+    for combination in combinations:
+        profit = 0
+        for action in combination:
+            profit += action[1]
+        if profit > best_profit:
+            best_profit = profit
+            best_combination = combination
+    return best_combination, best_profit
 
 
 
@@ -96,5 +110,7 @@ if __name__ == "__main__":
     combinations = get_target_combinations(all_combinations, 500)
     #print(f"Combinaisons ciblée : {len(combinations)}")
     #print(f"Les données : {data}")
-    profit_per_action = calculate_profit_per_action(combinations)
-    print(f"Les combinaisons avec le bénéfice: {profit_per_action}")
+    profit_per_combinations = calculate_profit_per_action(combinations)
+    #print(f"Les combinaisons avec le bénéfice: {profit_per_combinations}")
+    best_combination = get_best_combination(profit_per_combinations)
+    print(f"La meilleure combinaisons d'action : {best_combination}")
