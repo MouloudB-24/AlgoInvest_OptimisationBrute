@@ -2,7 +2,7 @@
 Optimisation de l'algorithme brute force :
 1) read_csv() : utilisation d'une compréhension de liste, transformer les nombres
 2) Ecrire les deux fonctions find_all_combinations et get_target_combinations en une seule en utilisant
-   lialgorithme de "Branch and Bound".
+   l'algorithme de "Branch and Bound".
 """
 import csv
 import time
@@ -24,51 +24,57 @@ def read_csv(file_name):
         return [(row[0], int(row[1]), float(row[2].strip("%"))/100) for row in raw_data]
 
 
+def sort_data(data):
+    return sorted(data, key=lambda x: x[1], reverse=True)
+
+
 # Function to calculate all possible combinations
-def find_all_combinations(data, target):
+def find_target_combinations(data, target):
     """
     Calculate all possible sub-lists combinations in the data list.
 
     :param data: The list whose possible sub-lists are to be calculated.
     :return: The list containing all sub-lists.
     """
+    # Trier les actions par ordre décroissant
+    data = sort_data(data)
+
     # Initialize the list of combinations
-    all_combinations = [[]]
+    target_combinations = []
 
-    for element in data:
-        new_combinations = []
+    # pile
+    possible_combinations = [(0, 0, [])]
 
-        for combination in all_combinations:
-            new_combinations.append(combination)
+    while possible_combinations:
+        index, current_sum, current_combination = possible_combinations.pop()
 
-            new_combination = combination + [element]
+        if current_sum == target:
+            target_combinations.append(current_combination)
 
-            new_combination_sum = sum(action[1] for action in new_combination)
+        if index < len(data):
+            current_action = data[index]
+            current_action_price = data[index][1]
 
-            if new_combination_sum > target:
-                continue
-            new_combinations.append(new_combination)
+            remaining_sum = sum([action[1] for action in data[index:]])
 
-        # Update the list of combinations
-        all_combinations = new_combinations
-    return all_combinations
+            # Couper les branches ou la somme totale est < target
+            if current_sum + remaining_sum >= target:
+                possible_combinations.append((index+1, current_sum, current_combination))
+
+                # Couper la branche dès que la somme dépasse target
+                if current_sum + current_action_price <= target:
+                    possible_combinations.append((index+1, current_sum + current_action_price, current_combination + [current_action]))
+    return target_combinations
 
 
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
-    #execution_time = timeit.timeit(test_function, number=100)
-    #print(execution_time/100)
     start_time = time.time()
     data = read_csv("liste-actions.csv")
-    all_combinations = find_all_combinations(data, 500)
-    print(len(all_combinations))
-    #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
-    #combinations = get_target_combinations(all_combinations, 500)
-    #combinations = calculate_profit_combination(combinations)
-    #print(get_best_combination(combinations))
-    #print(f"Combinaisons ciblée : {len(combinations)}")
+    target_combinations = find_target_combinations(data, 500)
     end_time = time.time()
     print(end_time - start_time)
-    #print(f"Execution time read_csv : {end_time - start_time} seconds.")
+    print(len(target_combinations))
+
 
 
