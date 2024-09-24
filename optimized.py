@@ -6,7 +6,6 @@ Optimisation de l'algorithme brute force :
 """
 import csv
 import time
-import timeit
 
 
 # Function to retrieve data from a CSV file
@@ -24,8 +23,8 @@ def read_csv(file_name):
         return [(row[0], int(row[1]), float(row[2].strip("%"))/100) for row in raw_data]
 
 
-def sort_data(data):
-    return sorted(data, key=lambda x: x[1], reverse=True)
+def sort_data(data, n):
+    return sorted(data, key=lambda x: x[n], reverse=True)
 
 
 # Function to calculate all possible combinations
@@ -37,10 +36,10 @@ def find_target_combinations(data, target):
     :return: The list containing all sub-lists.
     """
     # Trier les actions par ordre décroissant
-    data = sort_data(data)
+    data = sort_data(data, 1)
 
     # Initialize the list of combinations
-    target_combinations = []
+    combinations = []
 
     # pile
     possible_combinations = [(0, 0, [])]
@@ -49,7 +48,7 @@ def find_target_combinations(data, target):
         index, current_sum, current_combination = possible_combinations.pop()
 
         if current_sum == target:
-            target_combinations.append(current_combination)
+            combinations.append(current_combination)
 
         if index < len(data):
             current_action = data[index]
@@ -64,17 +63,37 @@ def find_target_combinations(data, target):
                 # Couper la branche dès que la somme dépasse target
                 if current_sum + current_action_price <= target:
                     possible_combinations.append((index+1, current_sum + current_action_price, current_combination + [current_action]))
-    return target_combinations
+    return combinations
+
+
+# Function to calculate profit for each combination
+def get_best_combination(combinations):
+    """
+    Calculates profit for each combination.
+
+    :param target_combinations: The list of the combinations.
+    :return: The list of combinations with profits.
+    """
+    best_combination = []
+    best_profit = 0
+    for combination in combinations:
+        profit = 0
+        for action in combination:
+            profit += action[1] * action[2]
+        if profit > best_profit:
+            best_profit = profit
+            best_combination = combination
+    return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
 
 
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
     data = read_csv("liste-actions.csv")
-    target_combinations = find_target_combinations(data, 500)
+    combinations = find_target_combinations(data, 500)
+    combination = get_best_combination(combinations)
     end_time = time.time()
     print(end_time - start_time)
-    print(len(target_combinations))
-
+    print(combination)
 
 
