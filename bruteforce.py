@@ -21,7 +21,7 @@ Objectif :
 Stratégie :
 --> Trouver toutes les combinaisons de liste possible dans la liste d'actions.
 
---> Parcouris toutes les combinaisons trouvée, garder uniquement celles dont la valeur == 500€
+--> Parcouris toutes les combinaisons trouvée, garder uniquement celles dont la valeur <= 500€
 
 --> Claculer pour chaque combinaison les bénéfices en mutipliant par le pourcentage %
 
@@ -92,7 +92,7 @@ def get_target_combinations(all_combinations, target):
         current_target = 0
         for action in combination:
             current_target += int(action[1])
-        if current_target == target:
+        if current_target <= target:
             target_combinations.append(combination)
     return target_combinations
 
@@ -138,7 +138,7 @@ def get_best_combination(combinations):
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
-    data = read_csv("dataset1.csv")
+    data = read_csv("actions.csv")
     all_combinations = find_all_combinations(data)
     #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
