@@ -29,6 +29,7 @@ Stratégie :
 """
 import csv
 import time
+from pathlib import Path
 
 
 # Function to retrieve data from a CSV file
@@ -40,7 +41,8 @@ def read_csv(file_name):
     :return: Data in list form.
     """
     data = []
-    with open(file_name, "r", newline="", encoding="utf-8") as file:
+    folder = Path("data") / file_name
+    with open(folder, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
 
         for row in raw_data:
@@ -135,7 +137,7 @@ def get_best_combination(combinations):
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
-    data = read_csv("liste-actions.csv")
+    data = read_csv("actions.csv")
     all_combinations = find_all_combinations(data)
     #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
