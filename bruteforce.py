@@ -109,8 +109,9 @@ def calculate_profit_combination(target_combinations):
     for combination in tqdm(target_combinations, desc="Calculating profits"):
         new_combination = []
         for action in combination:
-            profit = int(action[1]) * int(action[2]) / 100
-            new_combination.append([action[0], profit])
+            #cost = int(action[1])
+            #profit = int(action[1]) * int(action[2]) / 100
+            new_combination.append((action[0], int(action[1]), int(action[1]) * int(action[2]) / 100))
         profit_combinations.append(new_combination)
     return profit_combinations
 
@@ -123,16 +124,20 @@ def get_best_combination(combinations):
     :param combinations: The list of the combinations.
     :return: The best combinations if action list and benefits
     """
+    best_cost = 0
     best_profit = 0
     best_combination = []
     for combination in tqdm(combinations, desc="Finding the best combination"):
         profit = 0
+        cost = 0
         for action in combination:
-            profit += action[1]
+            cost += action[1]
+            profit += action[2]
         if profit > best_profit:
             best_profit = profit
+            best_cost = cost
             best_combination = combination
-    return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
+    return f"The best cost: {best_cost}€\nThe best profit: {best_profit}€\nThe best combination : {best_combination}"
 
 
 if __name__ == "__main__":
