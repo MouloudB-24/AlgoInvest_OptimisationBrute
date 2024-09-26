@@ -22,7 +22,7 @@ def read_csv(file_name):
     with open(folder, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
         next(raw_data)
-        return [(row[0], int(row[1]), float(row[2].strip("%"))/100) for row in tqdm(raw_data, desc="Reading CSV data")]
+        return [(row[0], float(row[1]), float(row[2].strip("%"))/100) for row in tqdm(raw_data, desc="Reading CSV data")]
 
 
 # Function to calculate all possible combinations, using the Branch and Bound algorithm
@@ -47,7 +47,7 @@ def find_target_combinations(data, target):
         while possible_combinations:
             index, current_sum, current_combination = possible_combinations.pop()
 
-            if current_sum == target:
+            if current_sum <= target:
                 combinations.append(current_combination)
 
             if index < len(data):
@@ -101,7 +101,7 @@ def sort_data(data, n):
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
-    data = read_csv("dataset1.csv")
+    data = read_csv("actions.csv")
     combinations = find_target_combinations(data, 500)
     combination = get_best_combination(combinations)
     end_time = time.time()
