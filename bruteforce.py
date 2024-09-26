@@ -31,9 +31,11 @@ import csv
 import time
 from pathlib import Path
 from tqdm import tqdm
+from memory_profiler import profile
 
 
 # Function to retrieve data from a CSV file
+#@profile
 def read_csv(file_name):
     """
     Retrieve data from a CSV file.
@@ -56,6 +58,7 @@ def read_csv(file_name):
 
 
 # Function to calculate all possible combinations
+#@profile
 def find_all_combinations(data):
     """
     Calculate all possible sub-lists combinations in the data list.
@@ -79,6 +82,7 @@ def find_all_combinations(data):
 
 
 # Function to calculate all target combinations
+#@profile
 def get_target_combinations(all_combinations, target):
     """
     Obtain the target combinations from the list of all possible combinations.
@@ -92,6 +96,8 @@ def get_target_combinations(all_combinations, target):
         current_target = 0
         for action in combination:
             current_target += int(action[1])
+            if current_target > target:
+                break
         if current_target <= target:
             target_combinations.append(combination)
     return target_combinations
@@ -109,8 +115,6 @@ def calculate_profit_combination(target_combinations):
     for combination in tqdm(target_combinations, desc="Calculating profits"):
         new_combination = []
         for action in combination:
-            #cost = int(action[1])
-            #profit = int(action[1]) * int(action[2]) / 100
             new_combination.append((action[0], int(action[1]), int(action[1]) * int(action[2]) / 100))
         profit_combinations.append(new_combination)
     return profit_combinations
