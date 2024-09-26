@@ -30,6 +30,7 @@ Stratégie :
 import csv
 import time
 from pathlib import Path
+from tqdm import tqdm
 
 
 # Function to retrieve data from a CSV file
@@ -45,7 +46,7 @@ def read_csv(file_name):
     with open(folder, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
 
-        for row in raw_data:
+        for row in tqdm(raw_data, desc="Reading CSV data"):
             percentage = row[2].strip("%")
             data.append([row[0], row[1], percentage])
 
@@ -65,7 +66,7 @@ def find_all_combinations(data):
     # Initialize the list of combinations
     all_combinations = [[]]
 
-    for element in data:
+    for element in tqdm(data, desc="Generating all combinations"):
         new_combinations = []
 
         for combination in all_combinations:
@@ -87,7 +88,7 @@ def get_target_combinations(all_combinations, target):
     :return: The list containing the target combinations
     """
     target_combinations = []
-    for combination in all_combinations:
+    for combination in tqdm(all_combinations, desc="Obtain target combinations"):
         current_target = 0
         for action in combination:
             current_target += int(action[1])
@@ -105,7 +106,7 @@ def calculate_profit_combination(target_combinations):
     :return: The list of combinations with profits.
     """
     profit_combinations = []
-    for combination in target_combinations:
+    for combination in tqdm(target_combinations, desc="Calculating profits"):
         new_combination = []
         for action in combination:
             profit = int(action[1]) * int(action[2]) / 100
@@ -124,7 +125,7 @@ def get_best_combination(combinations):
     """
     best_profit = 0
     best_combination = []
-    for combination in combinations:
+    for combination in tqdm(combinations, desc="Finding the best combination"):
         profit = 0
         for action in combination:
             profit += action[1]
@@ -137,7 +138,7 @@ def get_best_combination(combinations):
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
-    data = read_csv("actions.csv")
+    data = read_csv("dataset1.csv")
     all_combinations = find_all_combinations(data)
     #print(f"Nomber of possible combinations is: {len(all_combinations)}\n{all_combinations[77]}")
     combinations = get_target_combinations(all_combinations, 500)
