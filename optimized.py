@@ -6,6 +6,8 @@ Optimisation de l'algorithme brute force :
 """
 import csv
 import time
+from pathlib import Path
+from tqdm import tqdm
 
 
 # Function to retrieve data from a CSV file
@@ -16,24 +18,21 @@ def read_csv(file_name):
     :param file_name: Name file.
     :return: Data in list form.
     """
-
-    with open(file_name, "r", newline="", encoding="utf-8") as file:
+    folder = Path("data") / file_name
+    with open(folder, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
         next(raw_data)
-        return [(row[0], int(row[1]), float(row[2].strip("%"))/100) for row in raw_data]
+        return [(row[0], int(row[1]), float(row[2].strip("%"))/100) for row in tqdm(raw_data, desc="Reading CSV data")]
 
 
-def sort_data(data, n):
-    return sorted(data, key=lambda x: x[n], reverse=True)
-
-
-# Function to calculate all possible combinations
+# Function to calculate all possible combinations, using the Branch and Bound algorithm
 def find_target_combinations(data, target):
     """
-    Calculate all possible sub-lists combinations in the data list.
+    Calculate the sub-lists target combinations in the data list.
 
     :param data: The list whose possible sub-lists are to be calculated.
-    :return: The list containing all sub-lists.
+    :param target: The target of the combinations chosen, which represents a sum.
+    :return: The list containing the sub-lists.
     """
     # Trier les actions par ordre décroissant
     data = sort_data(data, 1)
@@ -44,39 +43,42 @@ def find_target_combinations(data, target):
     # pile
     possible_combinations = [(0, 0, [])]
 
-    while possible_combinations:
-        index, current_sum, current_combination = possible_combinations.pop()
+    with tqdm(total=0, desc="Generating target combinations", unit="iteration") as pbar:
+        while possible_combinations:
+            index, current_sum, current_combination = possible_combinations.pop()
 
-        if current_sum == target:
-            combinations.append(current_combination)
+            if current_sum == target:
+                combinations.append(current_combination)
 
-        if index < len(data):
-            current_action = data[index]
-            current_action_price = data[index][1]
+            if index < len(data):
+                current_action = data[index]
+                current_action_price = data[index][1]
 
-            remaining_sum = sum([action[1] for action in data[index:]])
+                remaining_sum = sum([action[1] for action in data[index:]])
 
-            # Couper les branches ou la somme totale est < target
-            if current_sum + remaining_sum >= target:
-                possible_combinations.append((index+1, current_sum, current_combination))
+                # Couper les branches ou la somme totale est < target
+                if current_sum + remaining_sum >= target:
+                    possible_combinations.append((index+1, current_sum, current_combination))
 
-                # Couper la branche dès que la somme dépasse target
-                if current_sum + current_action_price <= target:
-                    possible_combinations.append((index+1, current_sum + current_action_price, current_combination + [current_action]))
-    return combinations
+                    # Couper la branche dès que la somme dépasse target
+                    if current_sum + current_action_price <= target:
+                        possible_combinations.append((index+1, current_sum + current_action_price, current_combination + [current_action]))
+            pbar.update(1)
+
+        return combinations
 
 
 # Function to calculate profit for each combination
 def get_best_combination(combinations):
     """
-    Calculates profit for each combination.
+    Calculates the best combination.
 
-    :param target_combinations: The list of the combinations.
-    :return: The list of combinations with profits.
+    :param combinations: The list of the combinations.
+    :return: The best combinations with his profit.
     """
     best_combination = []
     best_profit = 0
-    for combination in combinations:
+    for combination in tqdm(combinations, desc="Finding the best combination"):
         profit = 0
         for action in combination:
             profit += action[1] * action[2]
@@ -86,10 +88,20 @@ def get_best_combination(combinations):
     return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
 
 
+def sort_data(data, n):
+    """
+    Sort data.
+    :param data: The list of data to be sorted.
+    :param n: Index of sort element.
+    :return: The sorted list.
+    """
+    return sorted(data, key=lambda x: x[n], reverse=True)
+
+
 if __name__ == "__main__":
     # Début de l'éxecution de l'algorithme
     start_time = time.time()
-    data = read_csv("liste-actions.csv")
+    data = read_csv("dataset1.csv")
     combinations = find_target_combinations(data, 500)
     combination = get_best_combination(combinations)
     end_time = time.time()
