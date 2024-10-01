@@ -1,13 +1,12 @@
 """
 Optimisation de l'algorithme brute force :
 1) read_csv() : utilisation d'une compréhension de liste, transformer les nombres
-2) Ecrire les deux fonctions find_all_combinations et get_target_combinations en une seule en utilisant
-   l'algorithme de "Branch and Bound".
+2) Utilisation de l'algorithme de sac à dos dynamique avec précision de 100
 """
+
 import csv
-import time
 from pathlib import Path
-from tqdm import tqdm
+import time
 
 
 # Function to retrieve data from a CSV file
@@ -22,90 +21,51 @@ def read_csv(file_name):
     with open(folder, "r", newline="", encoding="utf-8") as file:
         raw_data = csv.reader(file)
         next(raw_data)
-        return [(row[0], float(row[1]), float(row[2].strip("%"))/100) for row in tqdm(raw_data, desc="Reading CSV data")]
+        return [(row[0], float(row[1]), float(row[2])) for row in raw_data if float(row[1]) > 0]
 
 
-# Function to calculate all possible combinations, using the Branch and Bound algorithm
-def find_target_combinations(data, target):
-    """
-    Calculate the sub-lists target combinations in the data list.
+def dynamic_algorithme(budget, shares, precision):
+    budget = budget * precision
+    shares = [(share[0], int(share[1] * precision), share[2], share[1] * share[2]/100) for share in shares]
 
-    :param data: The list whose possible sub-lists are to be calculated.
-    :param target: The target of the combinations chosen, which represents a sum.
-    :return: The list containing the sub-lists.
-    """
-    # Trier les actions par ordre décroissant
-    data = sort_data(data, 1)
+    matrix = [[0 for _ in range(budget + 1)] for _ in range(len(shares) + 1)]
 
-    # Initialize the list of combinations
-    combinations = []
+    for i_share in range(1, len(shares) + 1):
+        for remaining_budget in range(1, budget + 1):
+            share_price = shares[i_share - 1][1]
+            share_profit = shares[i_share - 1][3]
 
-    # pile
-    possible_combinations = [(0, 0, [])]
+            if share_price <= remaining_budget:
+                matrix[i_share][remaining_budget] = max(
+                    share_profit + matrix[i_share - 1][remaining_budget - share_price],
+                    matrix[i_share - 1][remaining_budget])
+            else:
+                matrix[i_share][remaining_budget] = matrix[i_share - 1][remaining_budget]
 
-    with tqdm(total=0, desc="Generating target combinations", unit="iteration") as pbar:
-        while possible_combinations:
-            index, current_sum, current_combination = possible_combinations.pop()
+    remaining_budget = budget
+    n_shares = len(shares)
+    selected_shares = []
 
-            if current_sum <= target:
-                combinations.append(current_combination)
+    while remaining_budget >= 0 and n_shares >= 0:
+        current_share = shares[n_shares - 1]
+        share_price = current_share[1]
+        share_profit = current_share[3]
 
-            if index < len(data):
-                current_action = data[index]
-                current_action_price = data[index][1]
+        if matrix[n_shares][remaining_budget] == matrix[n_shares - 1][remaining_budget - share_price] + share_profit:
+            selected_shares.append(current_share)
+            remaining_budget -= share_price
+        n_shares -= 1
 
-                remaining_sum = sum([action[1] for action in data[index:]])
+    selected_shares = [(share[0], share[1] / precision, share[2]) for share in selected_shares]
 
-                # Couper les branches ou la somme totale est < target
-                if current_sum + remaining_sum >= target:
-                    possible_combinations.append((index+1, current_sum, current_combination))
-
-                    # Couper la branche dès que la somme dépasse target
-                    if current_sum + current_action_price <= target:
-                        possible_combinations.append((index+1, current_sum + current_action_price, current_combination + [current_action]))
-            pbar.update(1)
-
-        return combinations
-
-
-# Function to calculate profit for each combination
-def get_best_combination(combinations):
-    """
-    Calculates the best combination.
-
-    :param combinations: The list of the combinations.
-    :return: The best combinations with his profit.
-    """
-    best_combination = []
-    best_profit = 0
-    for combination in tqdm(combinations, desc="Finding the best combination"):
-        profit = 0
-        for action in combination:
-            profit += action[1] * action[2]
-        if profit > best_profit:
-            best_profit = profit
-            best_combination = combination
-    return f"The best combination : {best_combination}\nThe best profit: {best_profit}€"
-
-
-def sort_data(data, n):
-    """
-    Sort data.
-    :param data: The list of data to be sorted.
-    :param n: Index of sort element.
-    :return: The sorted list.
-    """
-    return sorted(data, key=lambda x: x[n], reverse=True)
+    return sum([share[1] for share in selected_shares]), matrix[-1][-1], selected_shares
 
 
 if __name__ == "__main__":
-    # Début de l'éxecution de l'algorithme
+    budget = 500
+    precision = 100
+    shares = read_csv("dataset2.csv")
     start_time = time.time()
-    data = read_csv("actions.csv")
-    combinations = find_target_combinations(data, 500)
-    combination = get_best_combination(combinations)
+    cost, profit, best_combination = dynamic_algorithme(budget, shares, precision)
     end_time = time.time()
-    print(end_time - start_time)
-    print(combination)
-
-
+    print(f"Temps : {end_time-start_time} Secondes\nCoût : {cost}€\nBénéfice : {profit}€\nActions : {best_combination}")
